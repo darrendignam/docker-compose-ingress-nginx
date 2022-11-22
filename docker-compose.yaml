@@ -1,0 +1,44 @@
+version: '3.7'
+
+services:
+  nginx-proxy:
+    #build: ./proxy
+    image: nginxproxy/nginx-proxy
+    container_name: nginx-proxy
+    restart: always
+    ports:
+      - 80:80
+      - 443:443
+    labels:
+      com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy: "true"
+    volumes:
+      - ./volumes/proxy/conf:/etc/nginx/conf.d
+      - ./volumes/proxy/certs:/etc/nginx/certs:ro
+      - ./volumes/proxy/vhost.d:/etc/nginx/vhost.d
+      - ./volumes/proxy/html:/usr/share/nginx/html
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+    networks:
+      - ingress-proxy
+
+
+  nginx-proxy-acme:
+    image: nginxproxy/acme-companion
+    container_name: nginx-proxy-acme
+    restart: always
+    environment:
+    - DEFAULT_EMAIL=sysadmin@openpreservation.org
+    volumes:
+      - ./volumes/proxy/certs:/etc/nginx/certs
+      - ./volumes/proxy/vhost.d:/etc/nginx/vhost.d
+      - ./volumes/proxy/html:/usr/share/nginx/html
+      - ./volumes/proxy/acme:/etc/acme.sh
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - ingress-proxy
+
+    depends_on:
+      - nginx-proxy
+
+networks:
+  ingress-proxy:
+    name: ingress-proxy
