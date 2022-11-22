@@ -26,7 +26,7 @@ services:
     container_name: nginx-proxy-acme
     restart: always
     environment:
-    - DEFAULT_EMAIL=sysadmin@openpreservation.org
+    - DEFAULT_EMAIL=sysadmin@example.org
     volumes:
       - ./volumes/proxy/certs:/etc/nginx/certs
       - ./volumes/proxy/vhost.d:/etc/nginx/vhost.d
